@@ -44,7 +44,7 @@ const webpackConfig = {
     }),
     ifDev(new webpack.HotModuleReplacementPlugin()),
   ]),
-  performance: { 
+  performance: {
     hints: false
   },
   stats: {
@@ -60,4 +60,3 @@ const webpackConfig = {
 };
 
 module.exports = webpackConfig;
-
