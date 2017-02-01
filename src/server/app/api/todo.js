@@ -1,4 +1,6 @@
 import express from 'express';
+import Todo from '../../models/todo'
+
 
 /*
 lists todo: curl http://0.0.0.0:3004/api/todos/ | json_pp
@@ -6,29 +8,28 @@ add todo: curl -H "Content-Type: application/json" -X POST -d '{"todo": {"label"
 delete todo: curl -H "Content-Type: application/json" -X DELETE http://0.0.0.0:3004/api/todos/1
 */
 
-const todos = [];
-let id = 0;
-
-const loadTodos = (req, res) => res.json(todos)
-
-const addTodo = (req, res) => {
-  const { todo } = req.body;
-  // console.log('label:', todo);
-  const todoWithId = { ...todo, id: id += 1 }
-  todos.push(todoWithId);
-  res.json(todos);
+const loadTodos = todos => (req, res, next) => {
+  res.json(todos.load());
 }
 
-const deleteTodo = (req, res) => {
-  todos.filter((todo => req.params.id !== todo.id))
-  res.json(todos);
+const addTodo = todos => (req, res, next) => {
+  res.json(todos.add(req.body.todo));
 }
 
-const init = (ctx) => {
+const deleteTodo = todos => (req, res, next) => {
+  try {
+    res.json(todos.del(Number(req.params.id)));
+  }
+  catch(err) {
+    next(err);
+  }
+}
+
+const init = (ctx, models) => {
   const app = express();
-  app.get('/', loadTodos);
-  app.post('/', addTodo);
-  app.delete('/:id', deleteTodo);
+  app.get('/', loadTodos(models.todos));
+  app.post('/', addTodo(models.todos));
+  app.delete('/:id', deleteTodo(models.todos, models.tasks));
   return app;
 };
 

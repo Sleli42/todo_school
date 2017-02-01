@@ -6,29 +6,28 @@ add todo: curl -H "Content-Type: application/json" -X POST -d '{"task": {"descri
 delete todo: curl -H "Content-Type: application/json" -X DELETE http://0.0.0.0:3004/api/tasks/1
 */
 
-const tasks = [];
-let id = 0;
-
-const loadTasks = (req, res) => res.json(tasks)
-
-const addTask = (req, res) => {
-  const { task } = req.body;
-  // console.log('label:', todo);
-  const taskWithId = { ...task, id: id += 1 }
-  task.push(taskWithId);
-  res.json(task);
+const loadTasks = tasks => (req, res, next) => {
+  res.json(tasks.load());
 }
 
-const deleteTask = (req, res) => {
-  tasks.filter((task => req.params.id !== task.id))
-  res.json(tasks);
+const addTask = tasks => (req, res, next) => {
+  res.json(tasks.add(req.body.task));
 }
 
-const init = (ctx) => {
+const deleteTask = tasks => (req, res, next) => {
+  try {
+    res.json(tasks.del(Number(req.params.id)));
+  }
+  catch(err) {
+    next(err);
+  }
+}
+
+const init = (ctx, models) => {
   const app = express();
-  app.get('/', loadTasks);
-  app.post('/', addTask);
-  app.delete('/:id', deleteTask);
+  app.get('/', loadTasks(models.tasks));
+  app.post('/', addTask(models.tasks));
+  app.delete('/:id', deleteTask(models.tasks));
   return app;
 };
 

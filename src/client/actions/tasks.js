@@ -13,7 +13,7 @@ export const tasksLoaded = tasks => ({
 });
 
 export const loadTasks = () => (dispatch) => {
-  const uri = 'api/todo/tasks';
+  const uri = 'api/tasks/';
   requestJson(uri)
     .then(todos => dispatch(tasksLoaded(todos)))
     .catch((error) => {
@@ -27,9 +27,9 @@ export const taskAdded = task => ({
 });
 
 export const addTask = (description, listId) => (dispatch) => {
-  const uri = 'api/todo/tasks';
+  const uri = 'api/tasks/';
   const body = { task: { description, listId } };
-  const options = { method: 'post', body, dispatch };
+  const options = { method: 'POST', body, dispatch };
   requestJson(uri, options)
     .then(task => dispatch(taskAdded(task)))
     .catch((error) => {
@@ -43,7 +43,7 @@ export const taskDeleted = task => ({
 });
 
 export const deleteTask = id => (dispatch) => {
-  const uri = `api/todo/task/${id}`;
+  const uri = `api/tasks/${id}/`;
   const options = { method: 'DELETE', dispatch };
   return requestJson(uri, options)
     .then(task => dispatch(taskDeleted(task)))
