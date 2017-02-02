@@ -24,7 +24,7 @@ class Task extends eventEmitter {
     }
     this.tasks = R.remove(index, 1, this.tasks);
     this.emit('action', taskDeleted(id));
-    return {id};
+    return { id };
   }
 }
 

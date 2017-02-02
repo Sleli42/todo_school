@@ -1,6 +1,6 @@
 import 'whatwg-fetch';
 import { addLoading, delLoading } from './actions/current_loads';
-import { api } from '../../config';
+import { server } from '../../config';
 
 const checkStatus = (result) => {
   if (result.status !== 200) {
@@ -12,8 +12,12 @@ const checkStatus = (result) => {
 const paserJson = result => result.json();
 
 const requestJson = (uri, { method = 'GET', body, dispatch } = {}) => {
-  const absoluteUri = `http://${api.server.host}:${api.server.port}/${uri}`;
-  const params = { headers: { 'Content-Type': 'application/json' }, method };
+  const absoluteUri = `http://${server.host}:${server.port}/${uri}`;
+  const params = {
+    headers: { 'Content-Type': 'application/json' },
+    method,
+    credentials: 'same-origin',
+  };
   if (body) {
     params.body = JSON.stringify(body || {});
   }

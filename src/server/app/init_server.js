@@ -1,28 +1,48 @@
 import express from 'express';
 import http from 'http';
-import path from 'path';
+import R from 'ramda';
+import cookieParser from 'cookie-parser'
+import uuid from 'uuid';
+// import path from 'path';
 import compression from 'compression';
 import bodyParser from 'body-parser';
 import morgan from 'morgan';
-import favicon from 'serve-favicon';
+import socketIO from 'socket.io';
+// import favicon from 'serve-favicon';
 import initApi from './api/init_api';
 import { error } from './middleware';
-import Connector from './connector'
+import Connector from './connector';
 
-const getUrl = (server) => `http://${server.address().address}:${server.address().port}`;
+const getUrl = server => `http://${server.address().address}:${server.address().port}`;
 const initApp = (config = {}, models) => {
   const { publicPath, buildPath, server } = config;
   const app = express();
   const httpServer = http.createServer(app);
-  // console.log('models:', models.todos);
-  // models.todos.on('add', () => console.log('todo as been added'));
-  // models.todos.on('add', () => console.log('todo as been a'));
-  app.connector = new Connector(models);
+  const io = socketIO(httpServer);
+  app.connector = new Connector(models, io);
+
+  const session = (req, res, next) => {
+    let id = R.path(['cookies', 'todoAppId'], req);
+    console.log('id:', id);
+    if (!id) {
+      id = uuid.v4();
+      res.cookie('todoAppId', id);
+    }
+    req.user = { id };
+    next();
+  };
+
   const promise = new Promise((resolve) => {
     app
       .use(compression())
+      .use(cookieParser())
+      .use(session)
       .use(bodyParser.json())
       .use('/ping', (req, res) => res.json({ ping: 'pong' }))
+      .use('/sessions', (req, res) => {
+        const ids = R.compose(R.pluck('id'), R.values)(app.connector.users);
+        res.json(ids);
+      })
       .use(morgan('dev'))
       .use('/api', initApi(app, models))
       .use('/public', express.static(publicPath))

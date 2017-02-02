@@ -20,7 +20,7 @@ const deleteTodo = todos => (req, res, next) => {
   try {
     res.json(todos.del(Number(req.params.id)));
   }
-  catch(err) {
+  catch (err) {
     next(err);
   }
 }

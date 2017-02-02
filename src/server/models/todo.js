@@ -11,7 +11,7 @@ class Todo extends eventEmitter {
   }
   add(todo) {
     const { label } = todo;
-    const newTodo = { label, id: this.id += 1 }
+    const newTodo = { label, id: this.id += 1 };
     this.todos.push(newTodo);
     this.emit('action', todoAdded(newTodo));
     return newTodo;
@@ -23,7 +23,7 @@ class Todo extends eventEmitter {
     }
     this.todos = R.remove(index, 1, this.todos);
     this.emit('action', todoDeleted(id));
-    return {id};
+    return { id };
   }
 }
 

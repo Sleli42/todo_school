@@ -17,7 +17,7 @@ const webpackConfig = {
   output: {
     filename: 'bundle.js',
     path: path.join(__dirname, '/build'),
-    publicPath: `/assets/`,
+    publicPath: '/build/',
   },
   entry: {
     app: './src/client/index.js',

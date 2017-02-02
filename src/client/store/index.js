@@ -1,12 +1,13 @@
 import { createStore, applyMiddleware, compose } from 'redux';
 import createLogger from 'redux-logger';
 import thunk from 'redux-thunk';
+import { socketIoMiddleWare } from '../middlewares';
 import rootReducer from '../reducers';
 
-const configureStore = initialState => createStore(
+const configureStore = (initialState, io) => createStore(
   rootReducer,
   initialState,
-  compose(applyMiddleware(thunk, createLogger())),
+  compose(applyMiddleware(socketIoMiddleWare(io), thunk, createLogger())),
 );
 
 export default configureStore;
