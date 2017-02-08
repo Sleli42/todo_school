@@ -40,7 +40,7 @@ class AddTask extends React.Component {
 
 AddTask.propTypes = {
   onAddTask: PropTypes.func.isRequired,
-  todoId: PropTypes.number.isRequired,
+  todoId: PropTypes.string.isRequired,
 };
 
 export default AddTask;

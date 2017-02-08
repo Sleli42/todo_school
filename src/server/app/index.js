@@ -1,7 +1,7 @@
 import express from 'express';
 import http from 'http';
 import R from 'ramda';
-import cookieParser from 'cookie-parser'
+import cookieParser from 'cookie-parser';
 import uuid from 'uuid';
 // import path from 'path';
 import compression from 'compression';
@@ -9,17 +9,17 @@ import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import socketIO from 'socket.io';
 // import favicon from 'serve-favicon';
-import initApi from './api/init_api';
+import initApi from './api/';
 import { error } from './middleware';
 import Connector from './connector';
 
 const getUrl = server => `http://${server.address().address}:${server.address().port}`;
-const initApp = (config = {}, models) => {
+const initApp = (config = {}) => {
   const { publicPath, buildPath, server } = config;
   const app = express();
   const httpServer = http.createServer(app);
   const io = socketIO(httpServer);
-  app.connector = new Connector(models, io);
+  app.connector = new Connector(io);
 
   const session = (req, res, next) => {
     let id = R.path(['cookies', 'todoAppId'], req);
@@ -38,15 +38,15 @@ const initApp = (config = {}, models) => {
       .use(cookieParser())
       .use(session)
       .use(bodyParser.json())
+      .use('/public', express.static(publicPath))
+      .use('/build', express.static(buildPath))
       .use('/ping', (req, res) => res.json({ ping: 'pong' }))
       .use('/sessions', (req, res) => {
         const ids = R.compose(R.pluck('id'), R.values)(app.connector.users);
         res.json(ids);
       })
       .use(morgan('dev'))
-      .use('/api', initApi(app, models))
-      .use('/public', express.static(publicPath))
-      .use('/build', express.static(buildPath))
+      .use('/api', initApi())
       .use((req, res) => {
         res.redirect('/public/index.html');
       })

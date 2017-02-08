@@ -42,17 +42,21 @@ export const todoDeleted = todo => ({
   payload: todo,
 });
 
-export const deleteTodo = id => (dispatch, getState) => {
-  const { tasks } = getState();
+export const deleteTodo = id => (dispatch) => {
   const uri = `api/todos/${id}/`;
   const options = { method: 'DELETE', dispatch };
-  const filtered = tasks.filter(task => task.listId === id);
-  const tasksPromises = filtered.map(task => deleteTask(task.id)(dispatch));
-  Promise.all([requestJson(uri, options), ...tasksPromises])
-    .then(values => dispatch(todoDeleted(values[0])))
+  requestJson(uri, options)
+    .then(dispatch(todoDeleted({ id })))
     .catch((error) => {
       if (dispatch) dispatch(addAlert(`${error.type} failed !`, state.alert.id += 1));
     });
+  // const filtered = tasks.filter(task => task.listId === id);
+  // const tasksPromises = filtered.map(task => deleteTask(task.id)(dispatch));
+  // Promise.all([requestJson(uri, options), ...tasksPromises])
+  //   .then(values => dispatch(todoDeleted(values[0])))
+  //   .catch((error) => {
+  //     if (dispatch) dispatch(addAlert(`${error.type} failed !`, state.alert.id += 1));
+  //   });
 };
 
 export default {

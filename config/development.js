@@ -1,3 +1,6 @@
+// cat config/development.js
+const server = { host: '0.0.0.0', port: 3004 };
+const serverUrl = `http://${server.host}:${server.port}`;
 module.exports = {
   // devtool: 'eval-source-map',
   devtool: 'cheap-module-eval-source-map',
@@ -9,6 +12,17 @@ module.exports = {
     stats: 'errors-only',
     host: '0.0.0.0',
     port: 3000,
+    proxy: {
+      '/socket.io': {
+        ws: true,
+        target: serverUrl,
+        secure: false,
+      },
+      '/api': {
+        target: serverUrl,
+        secure: false,
+      },
+    },
   },
-}
-
+  server,
+};

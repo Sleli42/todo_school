@@ -1,7 +1,10 @@
-import initApp from './app/init_server';
+import initApp from './app';
 import config from '../../config';
-import models from './models';
+import initDb from './db';
 
-initApp(config, models)
-  .then(app => console.log(`todo serv started on ${app.url}`))
-  .catch(console.error)
+Promise.all([initApp(config), initDb(config)])
+  .then(([app, { db }]) => {
+    db.on('error', console.error);
+    console.log(`todo serv started on ${app.url}`);
+  })
+  .catch(console.error);

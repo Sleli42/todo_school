@@ -8,4 +8,5 @@ module.exports = {
     host: '0.0.0.0',
     port: 3004,
   },
+  mongodbURI: 'mongodb://localhost/devDB',
 };

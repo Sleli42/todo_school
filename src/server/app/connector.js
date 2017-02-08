@@ -2,45 +2,54 @@ import R from 'ramda';
 import cookie from 'cookie';
 
 class Connector {
-  constructor(emitters, socket) {
+  constructor(socket, emitters) {
     this.users = {};
     this.emitters = emitters;
     this.io = socket;
-    this.initSocketIO();
     this.initEmitters();
+    this.initUsers();
   }
+
+  getSessions() {
+    return R.compose(R.pluck('id'), R.values)(this.users);
+  }
+
   addUser(socket, id) {
-    const user = { socket, id };
-    console.log(`user added : ${id}`);
-    this.users[user.id] = user;
-    return user;
+    const user = { id, socket };
+    console.log(`add user ${id}`);
+    return (this.users[id] = user);
   }
-  removeUser({ id }) {
-    console.log(`user remove: ${id}`);
+
+  removeUser(id) {
+    console.log(`remove user ${id}`);
     delete this.users[id];
     return this;
   }
+
   broadcast(action) {
-    R.map(user => user.socket.emit('action', action))(this.users);
+    console.log('broadcast', action);
+    R.map(user => user.socket.broadcast.emit('action', action))(this.users);
   }
-  // emitters === models
+
   initEmitters() {
-    const registerModel = model => model.on('action', this.broadcast.bind(this));
-    // const registerModel = model => model.on('action', action => this.broadcast.bind(this));
+    // const registerModel = model => model.on('action', this.broadcast.bind(this));
+    const registerModel = model => model.on('action', action => this.broadcast(action));
     R.compose(R.map(registerModel), R.values)(this.emitters);
   }
-  initSocketIO() {
+
+  initUsers() {
     this.io.use((socket, next) => {
       if (socket.request.headers.cookie) {
-        const { todoAppId } = cookie.parse(socket.request.headers.cookie);
+        const userCookies = cookie.parse(socket.request.headers.cookie);
+        const { todoAppId } = userCookies;
         const user = this.addUser(socket, todoAppId);
         socket.request.user = user;
       }
       next();
     });
-    this.io.on('connection', (socket) => {
+    this.io.on('connect', (socket) => {
       socket.emit('action', { type: 'joined' });
-      socket.on('disconnect', () => this.removeUser(socket.request.user));
+      socket.on('disconnect', () => this.removeUser(socket.request.user.id));
     });
   }
 }
