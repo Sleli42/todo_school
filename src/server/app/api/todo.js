@@ -1,9 +1,14 @@
 import express from 'express';
 import Todo from '../../db/models/todo';
-import Task from '../../db/models/task';
 
 const loadTodos = (req, res, next) => {
-  Todo.find().then(todo => res.json(todo)).catch(next);
+  if (req.query.label) {
+    Todo.filter(req.query.label)
+      .then(todos => res.json(todos))
+      .catch(next);
+  } else {
+    Todo.find().then(todo => res.json(todo)).catch(next);
+  }
 };
 
 const addTodo = (req, res, next) => {
@@ -13,7 +18,7 @@ const addTodo = (req, res, next) => {
 
 const deleteTodo = (req, res, next) => {
   const { id } = req.params;
-  Todo.del(id).then(todo => res.json(todo)).then(Task.delByTodoId(id)).catch(next);
+  Todo.del(id).then(id => res.json(id)).catch(next);
 };
 
 const init = () => {

@@ -22,6 +22,8 @@ const requestJson = (uri, { method = 'GET', body, dispatch } = {}) => {
     params.body = JSON.stringify(body || {});
   }
   if (dispatch) dispatch(addLoading());
+  // console.log('absoluteUri:', absoluteUri);
+  // console.log('params:', params);
   return fetch(absoluteUri, params)
     .then(checkStatus).then(paserJson)
     .then((result) => {

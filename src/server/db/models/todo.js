@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
-import Task from './task';
+import R from 'ramda';
+import { Task } from './task';
 
 const todoSchema = new mongoose.Schema({
   label: String,
@@ -18,8 +19,42 @@ const add = ({ label }) => {
   return newTodo.save();
 };
 
-const del = id =>
-  Todo.findByIdAndRemove(id).exec()
-    .then(todo => ({ id: todo._id }));
+const del = (id) => {
+  const removeTodo = Todo.findByIdAndRemove(id).exec();
+  const removeTasks = Task.remove({ listId: id }).exec();
 
-export default { find, add, del };
+  return Promise.all([removeTodo, removeTasks]).then(() => { id } );
+};
+
+const filter = (label) => {
+  const labels = R.split(' ', label);
+  // regExp label
+  const promiseTodo = Todo.find().where('label').equals(labels).then((todos) => {
+    const ids = todos.map(elem => elem._id);
+    return ids;
+    // console.log('[todos] ids: ', ids);
+  });
+  const promiseTask = Task.find().where('description').equals(labels).then((tasks) => {
+    const ids = tasks.map(elem => elem.listIds);
+    return ids;
+    // console.log('[tasks] ids: ', ids);
+  });
+  return Promise.all([promiseTodo, promiseTask])
+    .then(res => R.union(res[0], res[1]));
+    // .then(res => console.log(res));
+    // .then(todosIds => {
+    //
+    // });
+    // .then(res => Todo.find({ $or: res }));
+};
+/*
+  // filter -> match()
+  //        -> where()
+
+
+  1: filter onTodo -> return todoIdS
+  2: filter onTask(todoIdS) ->
+  3: recup les 2 lists
+  4: faire union() des 2.
+*/
+export default { find, add, del, filter };

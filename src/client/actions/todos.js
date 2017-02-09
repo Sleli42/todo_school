@@ -26,9 +26,9 @@ export const todoAdded = todo => ({
   payload: todo,
 });
 
-export const addTodo = title => (dispatch) => {
+export const addTodo = label => (dispatch) => {
   const uri = 'api/todos/';
-  const body = { todo: { label: title } };
+  const body = { todo: { label } };
   const options = { method: 'POST', body, dispatch };
   requestJson(uri, options)
     .then(todo => dispatch(todoAdded(todo)))
@@ -50,13 +50,15 @@ export const deleteTodo = id => (dispatch) => {
     .catch((error) => {
       if (dispatch) dispatch(addAlert(`${error.type} failed !`, state.alert.id += 1));
     });
-  // const filtered = tasks.filter(task => task.listId === id);
-  // const tasksPromises = filtered.map(task => deleteTask(task.id)(dispatch));
-  // Promise.all([requestJson(uri, options), ...tasksPromises])
-  //   .then(values => dispatch(todoDeleted(values[0])))
-  //   .catch((error) => {
-  //     if (dispatch) dispatch(addAlert(`${error.type} failed !`, state.alert.id += 1));
-  //   });
+};
+
+const filterTodo = label => (dispatch) => {
+  const uri = `api/todos/?label=${label}`;
+  requestJson(uri)
+    .then(todos => dispatch(todosLoaded(todos)))
+    .catch((error) => {
+      if (dispatch) dispatch(addAlert(`${error.type} failed !`, state.alert.id += 1));
+    });
 };
 
 export default {
@@ -65,4 +67,5 @@ export default {
   todoAdded,
   deleteTodo,
   todoDeleted,
+  filterTodo,
 };

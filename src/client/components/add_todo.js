@@ -13,11 +13,16 @@ export const Spinner = styled.span`
 class AddTodo extends React.Component {
   state = { name: '' };
   handleChange = event => this.setState({ name: event.target.value });
-  handleClick = () => {
+  handleClickAdd = () => {
     const { onAddTodo } = this.props;
     onAddTodo(this.state.name);
     this.setState({ name: '' });
   };
+  handleClickFilter = () => {
+    const { onFilterTodo } = this.props;
+    onFilterTodo(this.state.name);
+    this.setState({ name: '' });
+  }
   handleKey = (event) => {
     if (event.key === 'Enter') {
       const { onAddTodo } = this.props;
@@ -37,7 +42,8 @@ class AddTodo extends React.Component {
           onKeyPress={this.handleKey}
           value={name}
         />
-        <Button onClick={this.handleClick}>Add</Button>
+        <Button onClick={this.handleClickAdd}>Add</Button>
+        <Button onClick={this.handleClickFilter}>Filter</Button>
         <Spinner>
           {currentLoads >= 1 && <Spin size="large" />}
         </Spinner>
@@ -48,6 +54,7 @@ class AddTodo extends React.Component {
 
 AddTodo.propTypes = {
   onAddTodo: PropTypes.func.isRequired,
+  onFilterTodo: PropTypes.func.isRequired,
   currentLoads: PropTypes.number.isRequired,
 };
 

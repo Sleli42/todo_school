@@ -15,7 +15,11 @@ export const Wrapper = styled.section`
 export const App = ({ todos, tasks, currentLoads, actions }) =>
   <Wrapper>
     <Header />
-    <AddTodo onAddTodo={actions.addTodo} currentLoads={currentLoads} />
+    <AddTodo
+      onAddTodo={actions.addTodo}
+      onFilterTodo={actions.filterTodo}
+      currentLoads={currentLoads}
+    />
     <TodoList tasks={tasks} todos={todos} actions={actions} />
   </Wrapper>
   ;
